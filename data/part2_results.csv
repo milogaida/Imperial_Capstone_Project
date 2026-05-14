@@ -1,0 +1,8 @@
+Model,CV RMSE,CV R2,Test RMSE,Test R2
+Dummy,2.54,-0.0076,4.1,-0.0002
+Linear Regression,13.74,-48.2034,24.85,-35.7695
+Random Forest,3.24,-1.0504,4.1,0.001
+Gradient Boosting,2.85,-0.8263,3.96,0.0647
+XGBoost,3.13,-0.8063,4.59,-0.2532
+AdaBoost,2.7,-0.2983,4.02,0.0377
+Gradient Boosting Tuned,2.75,0.588,3.9,0.0966

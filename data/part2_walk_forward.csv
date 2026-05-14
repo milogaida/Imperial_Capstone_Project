@@ -1,0 +1,6 @@
+Fold,Test Period,RMSE,R2
+9/11 and Iraq War,2001 to 2005,2.13,-0.1559
+2008 Financial Crisis,2006 to 2010,4.9,-0.014
+Arab Spring and Shale,2011 to 2015,4.27,-0.27
+COVID Crash,2016 to 2020,3.46,0.1198
+Ukraine Invasion,2021 to 2025,3.76,0.1015

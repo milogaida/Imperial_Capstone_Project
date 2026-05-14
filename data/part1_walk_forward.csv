@@ -1,0 +1,6 @@
+Fold,Train Period,Test Period,RMSE,MAE,R2
+Fold 1: 9/11 and Iraq War,1986 to 2000,2001 to 2005,11.39,7.02,0.1629
+Fold 2: 2008 Financial Crisis,1986 to 2005,2006 to 2010,28.27,22.64,-0.8847
+Fold 3: Arab Spring and Shale,1986 to 2010,2011 to 2015,10.51,8.54,0.7384
+Fold 4: COVID Crash,1986 to 2015,2016 to 2020,2.75,1.74,0.9438
+Fold 5: Ukraine Invasion,1986 to 2020,2021 to 2025,2.93,2.23,0.95

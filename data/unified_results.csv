@@ -1,0 +1,8 @@
+Model,P1 Test RMSE,P1 Test R2,P2 Test RMSE,P2 Test R2
+Dummy,30.2,-2.09,4.1,-0.0
+Linear Regression,30.22,-2.095,24.85,-35.77
+Random Forest,3.31,0.963,4.1,0.001
+Gradient Boosting,2.9,0.971,3.96,0.065
+XGBoost,3.19,0.965,4.59,-0.253
+AdaBoost,4.07,0.944,4.02,0.038
+Gradient Boosting Tuned,2.77,0.974,3.9,0.097
