@@ -1,0 +1,16 @@
+feature,importance,model
+wti_rolling_mean_30,0.8327947963926938,Part 1
+brent_price,0.08297368977020655,Part 1
+wti_price_level_Very Low,0.03570279612205219,Part 1
+wti_price_level_Low,0.02962802529202046,Part 1
+gold_wti_ratio,0.009374156007077791,Part 1
+wti_price_level_Medium,0.004629353988035163,Part 1
+wti_price_level_Very High,0.0010103045755845152,Part 1
+wti_brent_spread,0.0008536178181981838,Part 1
+dxy_index,0.00034130134687634505,Part 1
+natgas_price,0.00032951069154812517,Part 1
+copper_wti_ratio,0.00029857601738656663,Part 1
+copper_price,0.0002811397767706497,Part 1
+year,0.00021654813499664914,Part 1
+gpr_saudi,0.0001975682531403371,Part 1
+gpr_acts,0.00016719394495441192,Part 1

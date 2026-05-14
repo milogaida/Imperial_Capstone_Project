@@ -40,6 +40,15 @@ def style_fig(fig):
 
 
 df = pd.read_csv("data/capstone_master_dataset_v2.csv")
+
+predictions = pd.read_csv("data/test_predictions.csv")
+predictions['date'] = pd.to_datetime(predictions['date'])
+
+part1_results = pd.read_csv("data/part1_results.csv")
+part2_results = pd.read_csv("data/part2_results.csv")
+part1_wfv = pd.read_csv("data/part1_walk_forward.csv")
+part2_wfv = pd.read_csv("data/part2_walk_forward.csv")
+unified = pd.read_csv("data/unified_results.csv")
 df["observation_date"] = pd.to_datetime(df["observation_date"])
 df = df.sort_values("observation_date").reset_index(drop=True)
 
@@ -311,6 +320,32 @@ with col3:
 
 st.markdown("---")
 
+# Part 1 model comparison
+st.subheader("Model Comparison: Part 1")
+st.write("Seven models were tested. Tree based models dramatically outperform linear approaches, confirming the relationship between features and WTI price is non linear.")
+
+fig_p1_models = go.Figure()
+p1_plot = part1_results[part1_results['Model'] != 'Linear Regression'].copy()
+
+fig_p1_models = make_subplots(rows=1, cols=2,
+    subplot_titles=['Test RMSE (lower is better)', 'Test R2 (higher is better)'])
+
+fig_p1_models.add_trace(go.Bar(
+    x=p1_plot['Model'], y=p1_plot['Test RMSE'],
+    marker_color='#7b2d8b', name='RMSE'
+), row=1, col=1)
+
+fig_p1_models.add_trace(go.Bar(
+    x=p1_plot['Model'], y=p1_plot['Test R2'],
+    marker_color='#c06ec0', name='R2'
+), row=1, col=2)
+
+fig_p1_models.update_layout(title='Part 1 Model Comparison', showlegend=False)
+fig_p1_models = style_fig(fig_p1_models)
+fig_p1_models.update_xaxes(tickangle=30)
+st.plotly_chart(fig_p1_models, use_container_width=True)
+st.markdown("---")
+
 # Part 1 actual vs predicted
 st.subheader("Part 1: Actual vs Predicted WTI Price (2018 to 2025)")
 st.write("""
@@ -319,23 +354,47 @@ However this performance is misleading. The dominant feature driving predictions
 rolling average, meaning the model is following momentum rather than detecting geopolitical signal.
 """)
 
-st.image("images/10_part1_actual_vs_predicted.png", use_container_width=True)
-st.caption(
-    "Part 1 predictions track actual prices closely but are driven by the 30 day rolling average, not geopolitical features."
+fig_p1_pred = go.Figure()
+fig_p1_pred.add_trace(go.Scatter(
+    x=predictions['date'], y=predictions['actual_price'],
+    name='Actual Price', line=dict(color='#2d004b', width=1.5)
+))
+fig_p1_pred.add_trace(go.Scatter(
+    x=predictions['date'], y=predictions['predicted_price'],
+    name='Predicted Price', line=dict(color='#c06ec0', width=1.5)
+))
+fig_p1_pred.update_layout(
+    title='Part 1: Predicted vs Actual WTI Price — Model Driven by Momentum (2018 to 2025)',
+    xaxis_title='Date', yaxis_title='WTI Price (USD per barrel)'
 )
+fig_p1_pred = style_fig(fig_p1_pred)
+st.plotly_chart(fig_p1_pred, use_container_width=True)
+st.caption("The model tracks prices almost perfectly but is driven by the 30 day rolling average, not geopolitical features.")
 st.markdown("---")
 
-# feature importance comparison
-st.subheader("Feature Importance: Part 1 vs Part 2")
+# Part 1 walk forward
+st.subheader("Part 1: Walk Forward Validation")
 st.write("""
-This is the central finding of the project. In Part 1, the 30 day rolling average accounts for 
-85% of total feature importance — the model is tracking momentum not geopolitical signal. 
-In Part 2, with momentum removed, geopolitical features including GPR Russia, GPR Israel, 
-GPR Saudi, MENA violence events and lagged conflict variables all appear in the top 15 features.
+Walk forward validation tests the model on five distinct historical periods. 
+Performance varies dramatically across regimes — the model struggles most during the 2008 financial crisis 
+which was a demand shock rather than a geopolitical supply shock.
 """)
 
-st.image("images/20_feature_importance_comparison.png", use_container_width=True)
-st.caption(
-    "Removing momentum reveals the geopolitical signal that was previously invisible."
-)
+fig_p1_wfv = make_subplots(rows=1, cols=2,
+    subplot_titles=['RMSE by Fold (lower is better)', 'R2 by Fold (higher is better)'])
+
+fig_p1_wfv.add_trace(go.Bar(
+    x=part1_wfv['Fold'], y=part1_wfv['RMSE'],
+    marker_color='#7b2d8b', name='RMSE'
+), row=1, col=1)
+
+fig_p1_wfv.add_trace(go.Bar(
+    x=part1_wfv['Fold'], y=part1_wfv['R2'],
+    marker_color='#c06ec0', name='R2'
+), row=1, col=2)
+
+fig_p1_wfv.update_layout(title='Part 1 Walk Forward Validation', showlegend=False)
+fig_p1_wfv = style_fig(fig_p1_wfv)
+fig_p1_wfv.update_xaxes(tickangle=25)
+st.plotly_chart(fig_p1_wfv, use_container_width=True)
 st.markdown("---")

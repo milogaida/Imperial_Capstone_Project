@@ -1,0 +1,16 @@
+feature,importance,model
+vix_close,0.17650185907493046,Part 2
+wti_daily_return,0.10299956199993661,Part 2
+wti_brent_spread,0.07892210385646176,Part 2
+gpr_saudi,0.052372884880551786,Part 2
+gold_wti_ratio,0.05044824943537692,Part 2
+dxy_index,0.05013742511734943,Part 2
+copper_price,0.03952875552366367,Part 2
+total_violence_events,0.039154569388982936,Part 2
+mena_violence_events,0.037934242602820724,Part 2
+gpr_israel,0.037439211882567144,Part 2
+gpr_russia,0.03620066018626669,Part 2
+gold_price,0.03464146243722903,Part 2
+copper_wti_ratio,0.03457381964180689,Part 2
+natgas_price,0.028813082594703075,Part 2
+violence_lag7,0.025942772298718587,Part 2
