@@ -142,7 +142,7 @@ cluster_df, regime_df, cluster_names, cluster_colors = run_clustering(df)
 # st.tabs() creates the two top-level navigation tabs. Everything visible to the user
 # lives inside one of these two blocks. The data loading and caching functions above stay
 # outside so they run once regardless of which tab the user is viewing.
-tab1, tab2 = st.tabs(["Research Report", "Investment Simulator"])
+tab1, tab2, tab3 = st.tabs(["Research Report", "Investment Simulator", "Signal Analysis"])
 
 
 with tab1:
@@ -991,8 +991,7 @@ with tab2:
                     <tr style="border-bottom:1px solid #ddd8e8;">
                         <td style="padding:5px 8px;"><strong>Market regime at entry</strong></td>
                         <td style="padding:5px 8px;">{regime_name}</td>
-                    </tr>
-                    {gpr_row_html}
+                    </tr>{gpr_row_html}
                 </table>
                 <p style="color:#888; font-size:0.85rem; margin-top:1rem; margin-bottom:0;">
                     For educational purposes only. Not financial advice.
@@ -1000,3 +999,233 @@ with tab2:
             </div>
             """
             st.markdown(results_html, unsafe_allow_html=True)
+
+
+with tab3:
+
+    # === SIGNAL ANALYSIS ===
+
+    st.header("Signal Analysis")
+    st.write("""
+    This tool reads the geopolitical and market conditions recorded in the dataset on a
+    chosen date and interprets what those conditions historically signal for commodity prices,
+    based on the findings from the Part 2 analysis. It works within the dataset date range
+    only. It is a demonstration of the geopolitical signal the research identified, not a
+    live forecast.
+    """)
+    st.markdown("---")
+
+    # Restrict the selectable range to rows where all five signal variables are present.
+    # wti_rolling_mean_30 requires 30 days of history, and mena_violence_events only begins
+    # once the ACLED dataset starts, so the effective date range is smaller than the full df.
+    sig_valid_df = df.dropna(
+        subset=["wti_price", "gpr_index", "vix_close", "wti_rolling_mean_30", "mena_violence_events"]
+    )
+    sig_min_date = sig_valid_df["observation_date"].min().date()
+    sig_max_date = sig_valid_df["observation_date"].max().date()
+
+    # Default to the Russia-Ukraine invasion date: a high-signal event where GPR, MENA conflict,
+    # and price deviation all moved simultaneously, making it the clearest demonstration of the tool.
+    ukraine_date = pd.Timestamp("2022-02-24").date()
+    default_date = ukraine_date if sig_min_date <= ukraine_date <= sig_max_date else sig_max_date
+
+    analysis_date = st.date_input(
+        "Analysis Date",
+        value=default_date,
+        min_value=sig_min_date,
+        max_value=sig_max_date,
+        key="signal_analysis_date",
+    )
+
+    if st.button("Analyse Conditions"):
+
+        # --- Snap to nearest available trading day ---
+        # Same method as the Investment Simulator: find the row with the smallest absolute
+        # time delta from the chosen date and treat it as the matched observation.
+        analysis_ts = pd.Timestamp(analysis_date)
+        match_idx   = (sig_valid_df["observation_date"] - analysis_ts).abs().idxmin()
+        row         = sig_valid_df.loc[match_idx]
+
+        # --- Extract values from the matched row ---
+        actual_date           = row["observation_date"].date()
+        wti_price             = row["wti_price"]
+        gpr_index             = row["gpr_index"]
+        gpr_russia            = row["gpr_russia"]
+        gpr_israel            = row["gpr_israel"]
+        gpr_saudi             = row["gpr_saudi"]
+        mena_violence_events  = row["mena_violence_events"]
+        total_violence_events = row["total_violence_events"]
+        vix_close             = row["vix_close"]
+        wti_rolling_mean_30   = row["wti_rolling_mean_30"]
+        wti_deviation         = wti_price - wti_rolling_mean_30
+
+        # cluster_df only covers rows where wti_price, vix_close, and gpr_index are all
+        # present, so we snap to its nearest row separately to get the market regime label.
+        cluster_match_idx = (cluster_df["observation_date"] - analysis_ts).abs().idxmin()
+        cluster_id        = int(cluster_df.loc[cluster_match_idx, "cluster"])
+        cluster_name      = cluster_names[cluster_id]
+
+        # --- Historical context values computed from the full dataset ---
+        gpr_historical_mean  = df["gpr_index"].mean()
+        mena_historical_mean = df["mena_violence_events"].mean()
+
+        # rank(pct=True) assigns each observation a fractional rank in [0, 1]; multiplying
+        # by 100 gives the percentage of all historical values that fall below this one.
+        # match_idx is a valid label in df because sig_valid_df shares its pandas index.
+        gpr_percentile = df["gpr_index"].rank(pct=True).loc[match_idx] * 100
+
+        vix_elevated = bool(vix_close > 20)
+
+        # --- Overall geopolitical environment ---
+        if gpr_index > gpr_historical_mean * 1.5:
+            overall = "significantly elevated geopolitical risk"
+        elif gpr_index > gpr_historical_mean:
+            overall = "above average geopolitical risk"
+        elif gpr_index < gpr_historical_mean * 0.75:
+            overall = "a relatively calm geopolitical environment"
+        else:
+            overall = "moderate geopolitical conditions"
+
+        # --- Dominant signal source country ---
+        # Replace NaN country-level GPR values with 0.0 so the max() comparison always
+        # works cleanly even if a country index is missing for early dates in the dataset.
+        country_gpr = {
+            "Russia":       gpr_russia if pd.notna(gpr_russia) else 0.0,
+            "Israel":       gpr_israel if pd.notna(gpr_israel) else 0.0,
+            "Saudi Arabia": gpr_saudi  if pd.notna(gpr_saudi)  else 0.0,
+        }
+        dominant_country = max(country_gpr, key=country_gpr.get)
+        dominant_value   = country_gpr[dominant_country]
+
+        # --- MENA conflict signal ---
+        if mena_violence_events > mena_historical_mean * 1.5:
+            mena_signal = "significantly above average conflict activity in the Middle East and North Africa"
+        elif mena_violence_events > mena_historical_mean:
+            mena_signal = "above average conflict activity in the Middle East and North Africa"
+        else:
+            mena_signal = "relatively low conflict activity in the Middle East and North Africa"
+
+        # --- Price deviation signal ---
+        if wti_deviation > 3:
+            price_signal = "WTI oil was trading well above its recent trend, suggesting the market had already priced in some risk premium"
+        elif wti_deviation < -3:
+            price_signal = "WTI oil was trading below its recent trend, suggesting the market had not yet priced in elevated risk"
+        else:
+            price_signal = "WTI oil was trading close to its recent trend"
+
+        # --- Signal confidence ---
+        # Confidence is highest when GPR and MENA conflict are simultaneously elevated because
+        # Part 2 found the geopolitical channel most reliably active during combined supply-side
+        # stress, not when geopolitical risk rises without a corresponding conflict reading.
+        if gpr_index > gpr_historical_mean * 1.5 and mena_violence_events > mena_historical_mean * 1.5:
+            confidence = "moderately high"
+        elif gpr_index > gpr_historical_mean * 1.5 and mena_violence_events > mena_historical_mean:
+            confidence = "moderate"
+        elif gpr_index < gpr_historical_mean and mena_violence_events < mena_historical_mean:
+            confidence = "low"
+        else:
+            confidence = "low to moderate"
+
+        # --- Commodity recommendation and price direction ---
+        if confidence in ["moderate", "moderately high"] and wti_deviation < 3:
+            rec_commodity = "WTI Oil"
+            rec_direction = "upward price pressure"
+        elif confidence in ["moderate", "moderately high"] and wti_deviation > 3:
+            rec_commodity = "WTI Oil"
+            rec_direction = "sustained elevated prices but with mean reversion risk"
+        else:
+            rec_commodity = "Gold"
+            rec_direction = "safe haven demand"
+
+        # --- Investment horizon ---
+        if vix_elevated and gpr_index > gpr_historical_mean * 1.5:
+            horizon = "short to medium term (2 to 8 weeks), as high volatility makes longer holds unpredictable"
+        else:
+            horizon = "medium term (1 to 3 months)"
+
+        # --- Prose interpretation ---
+        # Five paragraphs: overall environment, MENA context, price signal, recommendation,
+        # horizon and disclaimer. No bullet points, no em dashes. Written for an informed
+        # financial reader who understands markets but is not a data scientist.
+        analysis_text = f"""
+<p>On {actual_date.strftime('%d %b %Y')}, global conditions were characterised by {overall}.
+The Geopolitical Risk index stood at {gpr_index:.1f}, placing it at the {gpr_percentile:.0f}th
+percentile of its historical distribution from 1986 to 2025. Among the three major oil-producing
+regions tracked in this dataset, {dominant_country} recorded the highest country-level GPR reading
+at {dominant_value:.1f}, making it the dominant signal source on this date. The market was
+classified as being in the {cluster_name} regime, the cluster the unsupervised algorithm identified
+as characteristic of conditions combining that level of price, volatility, and geopolitical
+stress.</p>
+
+<p>The Middle East and North Africa region is the most consequential geography for global oil
+supply. It accounts for a significant share of world production and controls the shipping lanes
+through which a large fraction of global oil trade moves, including the Strait of Hormuz and
+the Suez Canal. Conflict in this region raises the risk of supply disruption through damage to
+production infrastructure, closure of transit routes, and the general repricing of supply risk
+by market participants. On {actual_date.strftime('%d %b %Y')}, the dataset recorded
+{mena_violence_events:.0f} MENA conflict events, representing {mena_signal}. The historical
+daily average across the full dataset is {mena_historical_mean:.1f} events.</p>
+
+<p>The deviation of WTI crude oil from its 30-day rolling average is the central metric that
+Part 2 of the research was built to explain. A positive deviation means oil is trading above
+its recent trend, typically indicating that some risk has already been absorbed into the price.
+A negative deviation means the market may not yet have reacted to the underlying conditions. On
+this date WTI was priced at ${wti_price:.2f} per barrel against a 30-day rolling average of
+${wti_rolling_mean_30:.2f}, producing a deviation of {wti_deviation:+.2f} dollars.
+{price_signal}.</p>
+
+<p>Taking these readings together, the conditions on this date most directly affect {rec_commodity},
+where the geopolitical signal points toward {rec_direction}. The overall signal confidence is
+{confidence}. Confidence reaches moderate or higher when the GPR index exceeds one and a half
+times its historical average and MENA conflict activity is simultaneously elevated, because the
+Part 2 findings showed the geopolitical channel to be most reliably active during periods that
+combined both signals. A lower MENA reading or a GPR index below its historical average each
+reduce confidence, since the research found little consistent geopolitical effect on prices
+outside genuine supply-side stress events.</p>
+
+<p>Given these conditions, the investment horizon suggested by this signal is {horizon}. This is
+a historical demonstration of the geopolitical signal identified in this research project, applied
+retrospectively to conditions recorded in the dataset on the chosen date. It is not a live
+forecast, does not account for events that occurred after that date, and should not be treated
+as financial advice.</p>
+"""
+
+        # --- Summary table ---
+        # Six rows, two columns. use_container_width=False keeps the table narrow so it reads
+        # as a compact snapshot rather than stretching across the full width of the page.
+        deviation_label = f"${wti_deviation:+.2f} vs 30-day avg"
+        summary_df = pd.DataFrame({
+            "Metric": ["Date", "WTI Price", "GPR Index", "Market Regime", "VIX", "WTI vs Trend"],
+            "Value": [
+                actual_date.strftime("%d %b %Y"),
+                f"${wti_price:.2f}",
+                f"{gpr_index:.1f} ({gpr_percentile:.0f}th percentile)",
+                cluster_name,
+                f"{vix_close:.1f}{'  (elevated)' if vix_elevated else ''}",
+                deviation_label,
+            ],
+        })
+        st.dataframe(summary_df, use_container_width=False, hide_index=True)
+
+        # --- Styled interpretation box ---
+        # analysis_text contains HTML paragraph tags, so unsafe_allow_html=True is required
+        # for the prose to render as styled text rather than raw markup.
+        # Build the styled box as a single concatenated string so there are no blank lines
+        # between the opening wrapper tags, the paragraph content, and the closing tags.
+        # An f-string with {analysis_text} on its own line creates a blank line (when
+        # analysis_text has a leading newline) that terminates the HTML block early in
+        # Streamlit's markdown renderer, leaving the closing </div> tags as literal text.
+        st.markdown(
+            '<div style="background-color:#f0ebf8; border-left:4px solid #7b2d8b;'
+            ' padding:1.5rem; border-radius:6px; margin-top:1rem;">'
+            '<h3 style="color:#2d004b; margin-top:0; margin-bottom:1rem;">Signal Interpretation</h3>'
+            '<div style="color:#2d004b; font-size:1rem; line-height:1.8;">'
+            + analysis_text.strip()
+            + '</div></div>',
+            unsafe_allow_html=True,
+        )
+
+        st.caption(
+            "Signal analysis based on research findings from this project. "
+            "For educational purposes only. Not financial advice."
+        )
