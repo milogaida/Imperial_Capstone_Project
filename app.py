@@ -785,7 +785,7 @@ with tab1:
 
     st.markdown("""
 ---
-*Milo Joseph Gaida Barlafante · Imperial College Business School · MSc 2026*
+*Milo Joseph Gaida Barlafante · Imperial College Business School · 2026*
 *Capstone: Geopolitical Shocks and Commodity Markets*
 """)
 
