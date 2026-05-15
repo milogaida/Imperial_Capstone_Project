@@ -167,7 +167,7 @@ with tab1:
             <h1 style="color: #2d004b; font-weight: bold;">Geopolitical Shocks and Commodity Markets</h1>
             <p style="color: #555; font-size: 1.1rem;">Capstone Executive Summary and Report</p>
             <p style="color: #888;">by Milo Joseph Gaida Barlafante</p>
-            <p style="color: #888;">Imperial College Business School · May 2026</p>
+            <p style="color: #888;">May 2026</p>
         </div>
         """,
         unsafe_allow_html=True,
