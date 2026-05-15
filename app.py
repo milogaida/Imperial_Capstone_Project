@@ -211,12 +211,32 @@ programme.
 
     st.header("Dataset and Methodology")
     st.write("""
-    The analysis draws on 10 data sources combined into a single master dataset of 14,609 daily
-    observations spanning January 1986 to December 2025. Key sources include FRED for WTI and
-    Henry Hub natural gas prices, market data for Brent crude, gold, copper, VIX (a widely used
-    measure of market anxiety, often called the fear index), and the US Dollar Index, the Caldara
-    and Iacoviello Geopolitical Risk index, and ACLED conflict event data covering political
-    violence by country and year.
+Oil prices are determined by a complex interaction of supply decisions, demand cycles, and 
+geopolitical events. When a conflict disrupts production in a major oil-producing region, when 
+sanctions close off a key supplier, or when shipping routes through the Strait of Hormuz come 
+under threat, markets reprice risk within hours. Understanding and anticipating these 
+geopolitical effects on commodity prices is one of the core challenges in energy economics and 
+commodity investment.
+
+This problem is a strong candidate for a machine learning approach for three reasons. First, 
+the relationships involved are non-linear: a small increase in conflict intensity does not 
+produce a proportional price response, and the same event can have very different effects 
+depending on the broader market environment. Linear statistical models struggle to capture 
+this. Second, the relevant signals are high-dimensional: no single indicator explains price 
+movements, but a combination of country-level risk scores, regional conflict event counts, 
+market volatility measures, and price momentum variables together contain meaningful 
+information. Machine learning models are well suited to finding structure across many variables 
+simultaneously. Third, there is now sufficient historical data spanning multiple geopolitical 
+cycles to train and validate models robustly, something that was not possible a decade ago.
+
+The analysis draws on 10 data sources combined into a single master dataset of 14,609 daily 
+observations spanning January 1986 to December 2025. Key sources include FRED for WTI and 
+Henry Hub natural gas prices, yfinance for Brent crude, gold, copper, VIX (a widely used 
+measure of market anxiety, often called the fear index) and the US Dollar Index, the Caldara 
+and Iacoviello Geopolitical Risk index, and ACLED conflict event data covering political 
+violence by country and year. The project is structured in two parts: Part 1 predicts the WTI 
+price level directly, and Part 2 isolates the geopolitical signal by predicting deviations 
+from the 30-day rolling average price instead.
     """)
 
     col1, col2, col3 = st.columns(3)
