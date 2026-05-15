@@ -179,24 +179,30 @@ with tab1:
 
     st.header("Executive Summary")
     st.write("""
-    This capstone asks a simple but consequential question: can machine learning models detect
-    and measure the effect of geopolitical shocks on oil prices? To answer it, the project builds
-    two distinct modelling frameworks using a dataset of 14,609 daily observations spanning 1986
-    to 2025, covering 43 variables drawn from commodity markets, conflict data, and geopolitical
-    risk indices.
+This project investigates whether geopolitical events have a measurable and predictable 
+effect on WTI crude oil prices, and whether machine learning models can detect and quantify 
+that effect. Oil is the world's most traded commodity and its price affects everything from 
+airline tickets to heating bills, making accurate price signal detection genuinely valuable 
+for investors, energy companies, and policymakers alike.
 
-    Part 1 shows that machine learning can predict WTI crude oil price levels with high accuracy,
-    achieving an R2 of 0.97 (a measure of how much of the variation in price the model explains,
-    where 1.0 is a perfect fit and 0.0 means the model does no better than guessing the average).
-    However, this strong result is largely driven by price momentum: the model is essentially
-    saying "tomorrow's price will be close to today's", not "this conflict has moved the market."
+Three key findings emerge from the analysis. First, machine learning models can predict WTI 
+price levels with very high accuracy, achieving an R2 of 0.974 on unseen data. However this 
+performance is largely explained by price momentum rather than geopolitical insight: the model 
+is essentially observing that today's oil price tends to be close to yesterday's. Second, when 
+momentum is removed from the analysis by predicting daily price deviations from trend instead 
+of the price level itself, geopolitical variables including conflict event counts across the 
+Middle East and North Africa and country-level risk scores for Russia, Israel, and Saudi Arabia 
+emerge as genuine contributors, explaining approximately 10 percent of daily price surprises. 
+Third, this geopolitical signal is not constant: it appears most strongly during acute 
+supply-side disruptions such as the COVID crash and the Ukraine invasion, and fades during 
+demand-driven or low-volatility market periods.
 
-    Part 2 corrects for this by changing what the model predicts. Instead of forecasting the price
-    itself, Part 2 predicts how far today's price deviates from its recent trend, stripping out
-    momentum and forcing the model to explain genuine price surprises. The finding is more modest
-    but more honest: geopolitical features account for approximately 10% of daily price deviations,
-    with the clearest signal during sustained supply disruptions such as the COVID crash and the
-    Ukraine invasion.
+The central conclusion is that geopolitical risk has a real but conditional effect on short-term 
+oil prices. The 10 percent explained by Part 2 is the floor of what a better-specified model 
+could achieve. With more granular conflict data, satellite monitoring of energy infrastructure, 
+and options market volatility as a real-time signal, this approach could be developed into a 
+practical commodity risk tool. This project is a proof of concept for that longer research 
+programme.
     """)
     st.markdown("---")
 
