@@ -149,14 +149,15 @@ with tab1:
 
     # === PAGE HEADER ===
 
-    # Centre the logo using a three-column layout. The middle column is twice as wide
-    # as the outer two, which keeps the image roughly centred on the page.
-    _, col_logo, _ = st.columns([1, 2, 1])
-    with col_logo:
-        st.image(
-            "https://nishant1529.github.io/customer_churn_dashboard/assets/imperial_logo.svg",
-            width=300,
-        )
+    # Centre the logo with text-align: center on a block div. An <img> is an inline
+    # element, so text-align on its parent div reliably centres it across all widths.
+    st.markdown(
+        '<div style="text-align: center; margin-bottom: 0.5rem;">'
+        '<img src="https://nishant1529.github.io/customer_churn_dashboard/assets/imperial_logo.svg"'
+        ' width="300">'
+        '</div>',
+        unsafe_allow_html=True,
+    )
 
     # HTML lets us centre and style the title block precisely. unsafe_allow_html is
     # required for any inline HTML in Streamlit.
