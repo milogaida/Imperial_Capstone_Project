@@ -1,0 +1,11 @@
+streamlit
+pandas
+numpy
+plotly
+scikit-learn
+matplotlib
+scipy
+xgboost
+lightgbm
+requests
+Pillow

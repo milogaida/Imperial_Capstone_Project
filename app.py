@@ -167,7 +167,7 @@ with tab1:
             <h1 style="color: #2d004b; font-weight: bold;">Geopolitical Shocks and Commodity Markets</h1>
             <p style="color: #555; font-size: 1.1rem;">Capstone Executive Summary and Report</p>
             <p style="color: #888;">by Milo Joseph Gaida Barlafante</p>
-            <p style="color: #888;">Imperial College Business School · May 2026</p>
+            <p style="color: #888;">May 2026</p>
         </div>
         """,
         unsafe_allow_html=True,
@@ -179,24 +179,30 @@ with tab1:
 
     st.header("Executive Summary")
     st.write("""
-    This capstone asks a simple but consequential question: can machine learning models detect
-    and measure the effect of geopolitical shocks on oil prices? To answer it, the project builds
-    two distinct modelling frameworks using a dataset of 14,609 daily observations spanning 1986
-    to 2025, covering 43 variables drawn from commodity markets, conflict data, and geopolitical
-    risk indices.
+This project investigates whether geopolitical events have a measurable and predictable 
+effect on WTI crude oil prices, and whether machine learning models can detect and quantify 
+that effect. Oil is the world's most traded commodity and its price affects everything from 
+airline tickets to heating bills, making accurate price signal detection genuinely valuable 
+for investors, energy companies, and policymakers alike.
 
-    Part 1 shows that machine learning can predict WTI crude oil price levels with high accuracy,
-    achieving an R2 of 0.97 (a measure of how much of the variation in price the model explains,
-    where 1.0 is a perfect fit and 0.0 means the model does no better than guessing the average).
-    However, this strong result is largely driven by price momentum: the model is essentially
-    saying "tomorrow's price will be close to today's", not "this conflict has moved the market."
+Three key findings emerge from the analysis. First, machine learning models can predict WTI 
+price levels with very high accuracy, achieving an R2 of 0.974 on unseen data. However this 
+performance is largely explained by price momentum rather than geopolitical insight: the model 
+is essentially observing that today's oil price tends to be close to yesterday's. Second, when 
+momentum is removed from the analysis by predicting daily price deviations from trend instead 
+of the price level itself, geopolitical variables including conflict event counts across the 
+Middle East and North Africa and country-level risk scores for Russia, Israel, and Saudi Arabia 
+emerge as genuine contributors, explaining approximately 10 percent of daily price surprises. 
+Third, this geopolitical signal is not constant: it appears most strongly during acute 
+supply-side disruptions such as the COVID crash and the Ukraine invasion, and fades during 
+demand-driven or low-volatility market periods.
 
-    Part 2 corrects for this by changing what the model predicts. Instead of forecasting the price
-    itself, Part 2 predicts how far today's price deviates from its recent trend, stripping out
-    momentum and forcing the model to explain genuine price surprises. The finding is more modest
-    but more honest: geopolitical features account for approximately 10% of daily price deviations,
-    with the clearest signal during sustained supply disruptions such as the COVID crash and the
-    Ukraine invasion.
+The central conclusion is that geopolitical risk has a real but conditional effect on short-term 
+oil prices. The 10 percent explained by Part 2 is the floor of what a better-specified model 
+could achieve. With more granular conflict data, satellite monitoring of energy infrastructure, 
+and options market volatility as a real-time signal, this approach could be developed into a 
+practical commodity risk tool. This project is a proof of concept for that longer research 
+programme.
     """)
     st.markdown("---")
 
@@ -205,12 +211,32 @@ with tab1:
 
     st.header("Dataset and Methodology")
     st.write("""
-    The analysis draws on 10 data sources combined into a single master dataset of 14,609 daily
-    observations spanning January 1986 to December 2025. Key sources include FRED for WTI and
-    Henry Hub natural gas prices, market data for Brent crude, gold, copper, VIX (a widely used
-    measure of market anxiety, often called the fear index), and the US Dollar Index, the Caldara
-    and Iacoviello Geopolitical Risk index, and ACLED conflict event data covering political
-    violence by country and year.
+Oil prices are determined by a complex interaction of supply decisions, demand cycles, and 
+geopolitical events. When a conflict disrupts production in a major oil-producing region, when 
+sanctions close off a key supplier, or when shipping routes through the Strait of Hormuz come 
+under threat, markets reprice risk within hours. Understanding and anticipating these 
+geopolitical effects on commodity prices is one of the core challenges in energy economics and 
+commodity investment.
+
+This problem is a strong candidate for a machine learning approach for three reasons. First, 
+the relationships involved are non-linear: a small increase in conflict intensity does not 
+produce a proportional price response, and the same event can have very different effects 
+depending on the broader market environment. Linear statistical models struggle to capture 
+this. Second, the relevant signals are high-dimensional: no single indicator explains price 
+movements, but a combination of country-level risk scores, regional conflict event counts, 
+market volatility measures, and price momentum variables together contain meaningful 
+information. Machine learning models are well suited to finding structure across many variables 
+simultaneously. Third, there is now sufficient historical data spanning multiple geopolitical 
+cycles to train and validate models robustly, something that was not possible a decade ago.
+
+The analysis draws on 10 data sources combined into a single master dataset of 14,609 daily 
+observations spanning January 1986 to December 2025. Key sources include FRED for WTI and 
+Henry Hub natural gas prices, yfinance for Brent crude, gold, copper, VIX (a widely used 
+measure of market anxiety, often called the fear index) and the US Dollar Index, the Caldara 
+and Iacoviello Geopolitical Risk index, and ACLED conflict event data covering political 
+violence by country and year. The project is structured in two parts: Part 1 predicts the WTI 
+price level directly, and Part 2 isolates the geopolitical signal by predicting deviations 
+from the 30-day rolling average price instead.
     """)
 
     col1, col2, col3 = st.columns(3)
