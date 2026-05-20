@@ -165,7 +165,7 @@ with tab1:
         """
         <div style="text-align: center; margin-top: 1rem;">
             <h1 style="color: #2d004b; font-weight: bold;">Geopolitical Shocks and Commodity Markets</h1>
-            <p style="color: #555; font-size: 1.1rem;">Capstone Executive Summary and Report</p>
+            <p style="color: #555; font-size: 1.1rem;">Using machine learning to isolate the price of conflict in global commodity markets</p>
             <p style="color: #888;">by Milo Joseph Gaida Barlafante</p>
             <p style="color: #888;">May 2026</p>
         </div>
